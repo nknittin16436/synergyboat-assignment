@@ -1,10 +1,11 @@
+import { AggregationCursor, Document } from "mongodb";
 import { client } from "../db/connection"
 
 
 export class EnergyUsageService {
     public async getTotalEnergyGroupedByStation() {
         try {
-            const cursor = await client.db('obe-sample').collection("energyusages").aggregate([
+            const cursor: AggregationCursor<Document> = await client.db('obe-sample').collection("energyusages").aggregate([
                 {
                     $group: {
                         _id: "$stationId",
@@ -20,10 +21,8 @@ export class EnergyUsageService {
                 }
             ]);
 
-            const results = await cursor.toArray();
-
-            console.log(results)
-            return results;
+            const totalEnergyGroupedByStationResults: Document[] = await cursor.toArray();
+            return totalEnergyGroupedByStationResults;
         } catch (error) {
             console.log(error)
         }
@@ -32,7 +31,7 @@ export class EnergyUsageService {
     public async getTotalMinutesUsedGroupedByDate() {
         try {
             await client.db('obe-sample').collection("energyusages").createIndex({ stationId: 1 })
-            const cursor = await client.db('obe-sample').collection("energyusages").aggregate([
+            const cursor: AggregationCursor<Document> = await client.db('obe-sample').collection("energyusages").aggregate([
                 {
                     $group: {
                         _id: {
@@ -49,8 +48,7 @@ export class EnergyUsageService {
                     }
                 }
             ])
-            const results = await cursor.toArray();
-            console.log(results)
+            const results: Document[] = await cursor.toArray();
             return results;
         } catch (error) {
             console.log(error)
@@ -60,7 +58,7 @@ export class EnergyUsageService {
 
     public async getMostBusyHoursByHourlyPort() {
         try {
-            const cursor = await client.db('obe-sample').collection("energyusages").aggregate([
+            const cursor: AggregationCursor<Document> = await client.db('obe-sample').collection("energyusages").aggregate([
                 {
                     $unwind: "$hourly_port"
                 },
@@ -76,9 +74,6 @@ export class EnergyUsageService {
                     }
                 },
                 {
-                    $limit: 5
-                },
-                {
                     $project: {
                         _id: 0,
                         mostBusyHour: "$_id",
@@ -88,12 +83,51 @@ export class EnergyUsageService {
                 }
             ])
 
-            const results = await cursor.toArray();
-            console.log(results)
+            const results: Document[] = await cursor.toArray();
             return results;
         } catch (error) {
             console.log(error)
         }
 
+    }
+    public async mapHourlyPortToPortNumber() {
+        try {
+            const cursor: AggregationCursor<Document> = await client.db('obe-sample').collection("energyusages").aggregate([
+                { $unwind: "$hourly_port" },
+                {
+                    $group: {
+                        _id: {
+                            portNumber: "$portNumber",
+                            hourly_port: "$hourly_port.time"
+                        },
+                        count: { $sum: 1 }
+                    }
+                },
+                {
+                    $group: {
+                        _id: "$_id.portNumber",
+                        hourly_port: {
+                            $push: {
+                                time: "$_id.hourly_port",
+                                count: "$count"
+                            }
+                        }
+                    }
+                }
+                , {
+
+                    $project: {
+                        _id: 0,
+                        portNumber: "$_id",
+                        hourly_port: 1,
+                    }
+                }
+            ])
+
+            const results: Document[] = await cursor.toArray();
+            return results;
+        } catch (error) {
+            console.log(error)
+        }
     }
 }

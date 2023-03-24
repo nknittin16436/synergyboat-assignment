@@ -1,0 +1,17 @@
+{
+  "name": "synergyboat",
+  "version": "1.0.0",
+  "description": "Assignment texhnical interview round 2",
+  "main": "index.ts",
+  "scripts": {
+    "start": "",
+    "dev": "ts-node src/index.ts"
+  },
+  "author": "Nand Kumar",
+  "license": "ISC",
+  "devDependencies": {
+    "nodemon": "^2.0.22",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.0.2"
+  }
+}

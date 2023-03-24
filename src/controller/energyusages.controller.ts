@@ -14,7 +14,6 @@ export class EnergyUsageController {
 
     public async totalEnergyGroupedByStationId(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            console.log("totla energy")
             const getTotalEnergyGroupedByStationIdResponse = await this.energyUsageService.getTotalEnergyGroupedByStation();
             res.status(201).json({ getTotalEnergyGroupedByStationIdResponse, message: "Data fetched succesfully" })
         } catch (error: any) {
@@ -25,8 +24,17 @@ export class EnergyUsageController {
 
     public async totalMinutesUsedGroupedByDate(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            console.log("totla energy")
             const getTotalEnergyGroupedByStationIdResponse = await this.energyUsageService.getTotalMinutesUsedGroupedByDate();
+            res.status(201).json({ getTotalEnergyGroupedByStationIdResponse, message: "Data fetched succesfully" })
+        } catch (error: any) {
+            res.status(400).json({ success: false, message: error.message })
+
+        }
+    }
+    public async mostBusyHours(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            console.log("totla energy")
+            const getTotalEnergyGroupedByStationIdResponse = await this.energyUsageService.getMostBusyHoursByHourlyPort();
             res.status(201).json({ getTotalEnergyGroupedByStationIdResponse, message: "Data fetched succesfully" })
         } catch (error: any) {
             res.status(400).json({ success: false, message: error.message })

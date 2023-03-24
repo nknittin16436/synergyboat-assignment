@@ -14,6 +14,10 @@ router.get("/getTotalMinutesUsedGroupedByDate", (req, res, next) => {
     energyUsageController.totalMinutesUsedGroupedByDate(req, res, next);
 });
 
+router.get("/getMostBusyHours", (req, res, next) => {
+    energyUsageController.mostBusyHours(req, res, next);
+});
+
 
 
 

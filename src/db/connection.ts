@@ -1,6 +1,7 @@
 import { MongoClient } from 'mongodb'
 
 export const client = new MongoClient('mongodb+srv://abhishek:P8tSb0FUTs4dFeCp@cluster0.ktzxbdz.mongodb.net/obe-sample');
+// export const client = new MongoClient('mongodb+srv://nknittin16436:nknittin@cluster0.wsjn7it.mongodb.net/obe-sample');
 export default async function connectToDb() {
     try {
         await client.connect();

@@ -17,11 +17,6 @@ export class UserAnalyticsService {
           }
         },
         {
-          $sort: {
-            count: -1
-          }
-        },
-        {
           $group: {
             _id: "$_id.action",
             users: {
@@ -33,10 +28,47 @@ export class UserAnalyticsService {
           }
         },
         {
+          $group: {
+            _id: "groupedUser",
+            LOGIN: {
+              $push: {
+                $cond: [{ $eq: ["$_id", "LOGIN"] }, "$users", "$$REMOVE"]
+              }
+            },
+            DOWNLOAD: {
+              $push: {
+                $cond: [{ $eq: ["$_id", "DOWNLOAD"] }, "$users", "$$REMOVE"]
+              }
+            }
+          }
+        },
+        {
           $project: {
-            _id: 0,
-            action: "$_id",
-            users: 1,
+            LOGIN: {
+              $arrayElemAt: ["$LOGIN", 0]
+            },
+            DOWNLOAD: {
+              $arrayElemAt: ["$DOWNLOAD", 0]
+            }
+          }
+        },
+        {
+          $unwind: "$LOGIN"
+        },
+        {
+          $sort: {
+            "LOGIN.count": -1
+          }
+        },
+        {
+          $group: {
+            _id: "$_id",
+            LOGIN: {
+              $push: "$LOGIN"
+            },
+            DOWNLOAD: {
+              $first: "$DOWNLOAD"
+            }
           }
         }
       ]);

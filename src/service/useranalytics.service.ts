@@ -13,8 +13,12 @@ export class UserAnalyticsService {
               action: "$action",
               userId: "$userId"
             },
-
             count: { $sum: 1 }
+          }
+        },
+        {
+          $sort: {
+            count: -1
           }
         },
         {
@@ -29,15 +33,67 @@ export class UserAnalyticsService {
           }
         },
         {
+          $project: {
+            _id: 0,
+            action: "$_id",
+            users: 1,
+          }
+        }
+      ]);
+
+      let results: Document[] = await cursor.toArray();
+      results
+      return results;
+    } catch (error) {
+      console.log(error)
+    }
+
+  }
+
+  public async getMostActiveUser() {
+    try {
+      const cursor: AggregationCursor<Document> = await client.db('obe-sample').collection("useranalytics").aggregate([
+        {
+          $match: {
+            action: { $exists: true }
+          }
+        },
+        {
+          $match: {
+            action: { $in: ["LOGIN", "DOWNLOAD"] }
+          }
+        },
+        {
+          $group: {
+            _id: {
+              createdAt: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
+              userId: "$userId"
+            },
+            count: { $sum: 1 }
+          }
+        },
+        {
           $sort: {
             count: -1
           }
         },
         {
+          $group: {
+            _id: "$_id.createdAt",
+            users: {
+              $push: {
+                userId: "$_id.userId",
+                count: "$count"
+              }
+            }
+          }
+        },
+        {
           $project: {
             _id: 0,
-            action: "$_id",
-            users: 1
+            createdAt: "$_id",
+            users: 1,
+            mostActiveUser: { $first: "$users" }
 
           }
         }

@@ -73,11 +73,12 @@ export class EnergyUsageService {
                         count: -1
                     }
                 },
+                { $limit: 1 },
                 {
                     $project: {
                         _id: 0,
                         mostBusyHour: "$_id",
-                        count: 1
+                        count: 1,
 
                     }
                 }
